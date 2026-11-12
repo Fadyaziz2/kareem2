@@ -1,10 +1,10 @@
-import { 
-  User, 
-  Lawyer, 
-  Template, 
-  Consultation, 
-  Escrow, 
-  Dispute, 
+import {
+  User,
+  Lawyer,
+  Template,
+  Consultation,
+  Escrow,
+  Dispute,
   DashboardStats,
   FinancialStats
 } from '../types';
@@ -186,6 +186,8 @@ export const mockTemplates: Template[] = [
 اتفق الطرفان على قيام منصة عقودي بدور الوسيط الضامن لتسليم قيمة الأعمال المتفق عليها وقدرها {{قيمة_العقد}} جنيه مصري موزعة على مراحل الإنجاز المرفقة.`,
     placeholders: ['تاريخ_اليوم', 'اسم_الطرف_الأول', 'عنوان_الطرف_الأول', 'الرقم_القومي_للأول', 'اسم_الطرف_الثاني', 'عنوان_الطرف_الثاني', 'الرقم_القومي_للثاني', 'قيمة_العقد'],
     price: 450,
+    autoGeneratePrice: 150,
+    lawyerReviewPrice: 450,
     requiresReview: true,
     createdAt: '2026-01-20T10:00:00.000Z'
   },
@@ -197,6 +199,8 @@ export const mockTemplates: Template[] = [
     content: `تم الاتفاق بين العميل {{اسم_الطرف_الأول}} والمطور/الشركة {{اسم_الطرف_الثاني}} على تطوير نظام برمجي وفق وثيقة المواصفات الفنية الملحقة، بإجمالي أتعاب {{قيمة_العقد}} جنيه مصري تسدد بنظام الضمان المشروط بالتسليم.`,
     placeholders: ['اسم_الطرف_الأول', 'اسم_الطرف_الثاني', 'قيمة_العقد', 'مدة_التنفيذ_بالأيام'],
     price: 350,
+    autoGeneratePrice: 200,
+    lawyerReviewPrice: 500,
     requiresReview: true,
     createdAt: '2026-02-05T12:00:00.000Z'
   },
@@ -208,6 +212,8 @@ export const mockTemplates: Template[] = [
     content: `أجر المؤجر {{اسم_الطرف_الأول}} للمستأجر {{اسم_الطرف_الثاني}} العين الكائنة في {{عنوان_العقار}} لاستخدامها في النشاط التجاري المحدد، بقيمة إيجارية شهرية {{القيمة_الإيجارية}} جنيه.`,
     placeholders: ['اسم_الطرف_الأول', 'اسم_الطرف_الثاني', 'عنوان_العقار', 'القيمة_الإيجارية', 'مدة_الإيجار_بالسنوات'],
     price: 250,
+    autoGeneratePrice: 150,
+    lawyerReviewPrice: 350,
     requiresReview: false,
     createdAt: '2026-02-15T15:30:00.000Z'
   },
@@ -219,6 +225,8 @@ export const mockTemplates: Template[] = [
     content: `تتعهد الجهة المستلمة {{اسم_الطرف_الثاني}} بعدم إفشاء أو استغلال أي معلومات سرية تخص {{اسم_الطرف_الأول}} تحت طائلة التعويض الاتفاقي المنصوص عليه وقدره {{قيمة_الشرط_الجزائي}} جنيه.`,
     placeholders: ['اسم_الطرف_الأول', 'اسم_الطرف_الثاني', 'قيمة_الشرط_الجزائي'],
     price: 150,
+    autoGeneratePrice: 100,
+    lawyerReviewPrice: 300,
     requiresReview: false,
     createdAt: '2026-03-01T08:00:00.000Z'
   }

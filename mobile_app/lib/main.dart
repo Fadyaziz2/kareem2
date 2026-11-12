@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'core/theme.dart';
-import 'screens/auth/login_screen.dart';
+import 'providers/auth_provider.dart';
+import 'screens/auth/splash_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const OqoodyApp());
 }
 
@@ -12,21 +15,26 @@ class OqoodyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'عقودي - Oqoody',
-      debugShowCheckedModeBanner: false,
-      locale: const Locale('ar', 'EG'),
-      supportedLocales: const [
-        Locale('ar', 'EG'),
-        Locale('en', 'US'),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      theme: OqoodyTheme.themeData,
-      home: const LoginScreen(),
+      child: MaterialApp(
+        title: 'عقودي - Oqoody',
+        debugShowCheckedModeBanner: false,
+        locale: const Locale('ar', 'EG'),
+        supportedLocales: const [
+          Locale('ar', 'EG'),
+          Locale('en', 'US'),
+        ],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        theme: OqoodyTheme.themeData,
+        home: const SplashScreen(),
+      ),
     );
   }
 }

@@ -27,6 +27,7 @@ export interface Lawyer {
   barNumber: string;
   degree: LawyerDegree;
   specializations: string[];
+  bio?: string;
   idCardImage?: string;
   barCardImage?: string;
   verificationStatus: VerificationStatus;
@@ -37,6 +38,15 @@ export interface Lawyer {
   totalConsultations: number;
 }
 
+export interface TemplateVariable {
+  name: string;
+  label: string;
+  type: 'text' | 'number' | 'date' | 'select';
+  options?: string[];
+  required?: boolean;
+  defaultValue?: string;
+}
+
 export interface Template {
   _id: string;
   title: string;
@@ -44,13 +54,41 @@ export interface Template {
   description?: string;
   content: string;
   placeholders: string[];
+  variables?: TemplateVariable[];
+  autoGeneratePrice: number;
+  lawyerReviewPrice: number;
   price: number;
   requiresReview: boolean;
   createdAt: string;
 }
 
+export interface GeneratedContract {
+  _id: string;
+  templateId: Template | string;
+  clientId: User;
+  assignedLawyerId?: User;
+  contractType: 'instant' | 'lawyer_review';
+  title: string;
+  filledVariables: Record<string, any>;
+  renderedContent: string;
+  status: 'draft' | 'pending_review' | 'approved' | 'completed';
+  price: number;
+  paymentStatus: 'pending' | 'paid';
+  lawyerNotes?: string;
+  pdfUrl?: string;
+  createdAt: string;
+}
+
 export type ConsultationType = 'written' | 'audio_call' | 'office_visit';
 export type ConsultationStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+export interface ChatMessage {
+  _id?: string;
+  sender: User | string;
+  text: string;
+  attachments?: string[];
+  timestamp: string;
+}
 
 export interface Consultation {
   _id: string;
@@ -63,6 +101,7 @@ export interface Consultation {
   price: number;
   status: ConsultationStatus;
   responseNotes?: string;
+  messages?: ChatMessage[];
   createdAt: string;
 }
 
@@ -94,6 +133,7 @@ export interface Escrow {
   description?: string;
   totalAmount: number;
   contractDocument?: string;
+  linkedContractId?: GeneratedContract | string;
   milestones: Milestone[];
   status: EscrowStatus;
   createdAt: string;
@@ -157,13 +197,13 @@ export interface WithdrawalRequest {
   amount: number;
   bank: string;
   iban: string;
-  status: 'pending' | 'completed' | 'rejected';
+  status: 'pending' | 'completed' | 'approved' | 'rejected';
   date: string;
 }
 
 export interface LedgerEntry {
   id: string;
-  type: 'escrow_fee' | 'consultation_cut' | 'template_sale' | 'penalty';
+  type: string;
   title: string;
   amount: number;
   party: string;
@@ -178,4 +218,3 @@ export interface FinancialStats {
   withdrawals: WithdrawalRequest[];
   ledger: LedgerEntry[];
 }
-

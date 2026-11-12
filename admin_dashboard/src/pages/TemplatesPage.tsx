@@ -3,20 +3,23 @@ import {
   FileText, 
   Plus, 
   Search, 
-  Filter, 
-  Tag, 
-  DollarSign, 
-  ShieldAlert, 
-  CheckCircle, 
+  Layers, 
+  Sparkles, 
   Trash2, 
   Edit3, 
   Eye, 
-  Sparkles,
-  Copy,
-  Layers
+  ShieldAlert, 
+  CheckCircle, 
+  CheckCircle2,
+  DollarSign,
+  Variable,
+  Calendar,
+  Hash,
+  ListFilter,
+  Type
 } from 'lucide-react';
 import { adminApi } from '../services/api';
-import { Template } from '../types';
+import { Template, TemplateVariable } from '../types';
 
 export const TemplatesPage: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -34,10 +37,19 @@ export const TemplatesPage: React.FC = () => {
   const [category, setCategory] = useState('عقود مالية وتجارية');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
-  const [price, setPrice] = useState(300);
-  const [requiresReview, setRequiresReview] = useState(true);
-  const [toast, setToast] = useState<string | null>(null);
+  const [autoGeneratePrice, setAutoGeneratePrice] = useState<number>(150);
+  const [lawyerReviewPrice, setLawyerReviewPrice] = useState<number>(450);
+  const [requiresReview, setRequiresReview] = useState<boolean>(true);
+  const [variables, setVariables] = useState<TemplateVariable[]>([]);
 
+  // New Variable Input State
+  const [newVarName, setNewVarName] = useState('');
+  const [newVarLabel, setNewVarLabel] = useState('');
+  const [newVarType, setNewVarType] = useState<'text' | 'number' | 'date' | 'select'>('text');
+  const [newVarOptions, setNewVarOptions] = useState('');
+  const [newVarDefault, setNewVarDefault] = useState('');
+
+  const [toast, setToast] = useState<string | null>(null);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -67,8 +79,20 @@ export const TemplatesPage: React.FC = () => {
 
 البند الأول: موضوع التعاقد والالتزامات
 اتفق الطرفان على تنفيذ الأعمال المحددة بقيمة إجمالية قدرها {{قيمة_العقد}} جنيه مصري مع كفالة إنجاز مدتها {{مدة_التنفيذ_بالأيام}} يوماً.`);
-    setPrice(350);
+    setAutoGeneratePrice(150);
+    setLawyerReviewPrice(450);
     setRequiresReview(true);
+    setVariables([
+      { name: 'تاريخ_اليوم', label: 'تاريخ إبرام العقد', type: 'date', required: true, defaultValue: '2026-11-12' },
+      { name: 'اسم_الطرف_الأول', label: 'اسم الطرف الأول', type: 'text', required: true, defaultValue: '' },
+      { name: 'عنوان_الطرف_الأول', label: 'عنوان الطرف الأول', type: 'text', required: true, defaultValue: 'القاهرة' },
+      { name: 'الرقم_القومي_للأول', label: 'الرقم القومي للطرف الأول', type: 'text', required: true, defaultValue: '' },
+      { name: 'اسم_الطرف_الثاني', label: 'اسم الطرف الثاني', type: 'text', required: true, defaultValue: '' },
+      { name: 'عنوان_الطرف_الثاني', label: 'عنوان الطرف الثاني', type: 'text', required: true, defaultValue: '' },
+      { name: 'الرقم_القومي_للثاني', label: 'الرقم القومي للطرف الثاني', type: 'text', required: true, defaultValue: '' },
+      { name: 'قيمة_العقد', label: 'قيمة العقد (ج.م)', type: 'number', required: true, defaultValue: '50000' },
+      { name: 'مدة_التنفيذ_بالأيام', label: 'مدة التنفيذ (بالأيام)', type: 'number', required: true, defaultValue: '30' }
+    ]);
     setIsModalOpen(true);
   };
 
@@ -78,9 +102,41 @@ export const TemplatesPage: React.FC = () => {
     setCategory(t.category);
     setDescription(t.description || '');
     setContent(t.content);
-    setPrice(t.price);
+    setAutoGeneratePrice(t.autoGeneratePrice || t.price || 150);
+    setLawyerReviewPrice(t.lawyerReviewPrice || 450);
     setRequiresReview(t.requiresReview);
+    setVariables(t.variables || []);
     setIsModalOpen(true);
+  };
+
+  const handleAddVariable = () => {
+    if (!newVarName.trim() || !newVarLabel.trim()) {
+      showToast('يرجى كتابة اسم المتغير وعنوانه في النموذج');
+      return;
+    }
+
+    const cleanName = newVarName.trim().replace(/\s+/g, '_');
+    const opts = newVarType === 'select' ? newVarOptions.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    const newVar: TemplateVariable = {
+      name: cleanName,
+      label: newVarLabel.trim(),
+      type: newVarType,
+      options: opts,
+      required: true,
+      defaultValue: newVarDefault.trim()
+    };
+
+    setVariables([...variables, newVar]);
+    setNewVarName('');
+    setNewVarLabel('');
+    setNewVarOptions('');
+    setNewVarDefault('');
+    showToast(`تمت إضافة المتغير {{${cleanName}}}`);
+  };
+
+  const handleRemoveVariable = (name: string) => {
+    setVariables(variables.filter(v => v.name !== name));
   };
 
   const insertPlaceholder = (ph: string) => {
@@ -100,13 +156,6 @@ export const TemplatesPage: React.FC = () => {
     }, 50);
   };
 
-  const extractPlaceholders = (text: string): string[] => {
-    const matches = text.match(/\{\{([^}]+)\}\}/g);
-    if (!matches) return [];
-    const set = new Set(matches.map(m => m.replace(/\{\{|\}\}/g, '').trim()));
-    return Array.from(set);
-  };
-
   const handleSaveTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
@@ -114,7 +163,7 @@ export const TemplatesPage: React.FC = () => {
       return;
     }
 
-    const placeholders = extractPlaceholders(content);
+    const placeholders = variables.map(v => v.name);
 
     try {
       if (editingTemplate) {
@@ -124,11 +173,14 @@ export const TemplatesPage: React.FC = () => {
           description,
           content,
           placeholders,
-          price,
+          variables,
+          autoGeneratePrice,
+          lawyerReviewPrice,
+          price: autoGeneratePrice,
           requiresReview
         });
         setTemplates(templates.map(t => t._id === editingTemplate._id ? updated : t));
-        showToast('تم تحديث نموذج العقد بنجاح');
+        showToast('تم تحديث نموذج العقد والمتغيرات بنجاح');
       } else {
         const created = await adminApi.createTemplate({
           title,
@@ -136,7 +188,10 @@ export const TemplatesPage: React.FC = () => {
           description,
           content,
           placeholders,
-          price,
+          variables,
+          autoGeneratePrice,
+          lawyerReviewPrice,
+          price: autoGeneratePrice,
           requiresReview
         });
         setTemplates([created, ...templates]);
@@ -179,31 +234,16 @@ export const TemplatesPage: React.FC = () => {
     return matchCat && matchQuery;
   });
 
-  const samplePlaceholders = [
-    'اسم_الطرف_الأول',
-    'عنوان_الطرف_الأول',
-    'الرقم_القومي_للأول',
-    'اسم_الطرف_الثاني',
-    'عنوان_الطرف_الثاني',
-    'الرقم_القومي_للثاني',
-    'قيمة_العقد',
-    'تاريخ_اليوم',
-    'مدة_التنفيذ_بالأيام',
-    'القيمة_الإيجارية',
-    'عنوان_العقار',
-    'قيمة_الشرط_الجزائي'
-  ];
-
   return (
     <div className="space-y-6">
       {toast && (
         <div className="fixed bottom-6 left-6 z-50 bg-oqoody-dark border border-oqoody-gold/60 text-oqoody-gold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm animate-in fade-in slide-in-from-bottom-2">
-          <CheckCircle className="w-5 h-5 text-oqoody-gold" />
+          <CheckCircle2 className="w-5 h-5 text-oqoody-gold" />
           <span>{toast}</span>
         </div>
       )}
 
-      {/* Top Header & New Template Button */}
+      {/* Top Header & Actions */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-oqoody-textMuted absolute right-3.5 top-3.5" />
@@ -221,11 +261,11 @@ export const TemplatesPage: React.FC = () => {
           className="px-5 py-2.5 rounded-xl bg-oqoody-gold hover:bg-oqoody-goldHover text-oqoody-bg font-bold text-xs shadow-gold-glow transition-all flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          <span>إنشاء نموذج عقد ذكي جديد</span>
+          <span>منشئ النماذج والمتغيرات الذكية</span>
         </button>
       </div>
 
-      {/* Category Tabs */}
+      {/* Categories Bar */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <Layers className="w-4 h-4 text-oqoody-gold flex-shrink-0" />
         {categories.map((cat) => (
@@ -266,8 +306,9 @@ export const TemplatesPage: React.FC = () => {
                     {template.category}
                   </span>
                   <div className="text-right">
-                    <span className="text-base font-black text-oqoody-textLight">
-                      {template.price > 0 ? `${template.price} ج.م` : 'مجاني'}
+                    <span className="text-xs text-oqoody-textMuted block">توليد فوري</span>
+                    <span className="text-sm font-black text-emerald-400">
+                      {template.autoGeneratePrice || template.price || 150} ج.م
                     </span>
                   </div>
                 </div>
@@ -275,37 +316,49 @@ export const TemplatesPage: React.FC = () => {
                 <h3 className="font-bold text-sm text-oqoody-textLight group-hover:text-oqoody-gold transition-colors leading-snug mb-2">
                   {template.title}
                 </h3>
-                <p className="text-xs text-oqoody-textMuted line-clamp-3 mb-4 leading-relaxed">
+                <p className="text-xs text-oqoody-textMuted line-clamp-2 mb-3 leading-relaxed">
                   {template.description || 'نموذج قانوني موثق وخاضع لأحكام القانون المصري مع دعم المتغيرات التلقائية.'}
                 </p>
 
-                {/* Placeholders chips */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {(template.placeholders || []).slice(0, 3).map((ph, idx) => (
-                    <span key={idx} className="bg-oqoody-dark/90 text-oqoody-textMuted border border-oqoody-border/80 text-[10px] px-2 py-0.5 rounded">
-                      &#123;&#123;{ph}&#125;&#125;
+                {/* Dual Pricing Info */}
+                <div className="flex items-center justify-between p-2 rounded-lg bg-oqoody-dark/70 border border-oqoody-border/60 text-[11px] mb-3">
+                  <div>
+                    <span className="text-oqoody-textMuted">توليد فوري: </span>
+                    <span className="font-bold text-emerald-400">{template.autoGeneratePrice || 150} ج.م</span>
+                  </div>
+                  <div>
+                    <span className="text-oqoody-textMuted">فحص ومراجعة محامٍ: </span>
+                    <span className="font-bold text-oqoody-gold">{template.lawyerReviewPrice || 450} ج.م</span>
+                  </div>
+                </div>
+
+                {/* Variables Preview Badges */}
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {(template.variables || []).slice(0, 3).map((v, idx) => (
+                    <span key={idx} className="bg-oqoody-dark text-oqoody-textLight border border-oqoody-border text-[10px] px-2 py-0.5 rounded">
+                      &#123;&#123;{v.name}&#125;&#125;
                     </span>
                   ))}
-                  {(template.placeholders || []).length > 3 && (
+                  {(template.variables || []).length > 3 && (
                     <span className="text-[10px] text-oqoody-gold font-bold self-center">
-                      +{(template.placeholders || []).length - 3} متغيرات
+                      +{(template.variables || []).length - 3} متغيرات ذكية
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Card Footer */}
-              <div className="pt-4 border-t border-oqoody-border/80 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-[11px]">
+              <div className="pt-3 border-t border-oqoody-border/80 flex items-center justify-between">
+                <div className="flex items-center gap-1 text-[11px]">
                   {template.requiresReview ? (
                     <span className="text-oqoody-warning flex items-center gap-1">
                       <ShieldAlert className="w-3.5 h-3.5" />
-                      <span>يتطلب فحص محامٍ</span>
+                      <span>فحص محامٍ إلزامي</span>
                     </span>
                   ) : (
                     <span className="text-oqoody-success flex items-center gap-1">
                       <CheckCircle className="w-3.5 h-3.5" />
-                      <span>توثيق فوري مباشر</span>
+                      <span>متاح فوري</span>
                     </span>
                   )}
                 </div>
@@ -320,7 +373,7 @@ export const TemplatesPage: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleOpenEdit(template)}
-                    title="تعديل النموذج"
+                    title="تعديل النموذج والمتغيرات"
                     className="p-1.5 rounded-lg bg-oqoody-dark hover:bg-oqoody-card border border-oqoody-border text-oqoody-gold transition-colors"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -339,18 +392,18 @@ export const TemplatesPage: React.FC = () => {
         )}
       </div>
 
-      {/* Smart Template Builder Modal */}
+      {/* Dynamic Template & Variable Builder Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-oqoody-dark border border-oqoody-border rounded-3xl w-full max-w-3xl max-h-[92vh] overflow-y-auto shadow-2xl p-6 sm:p-8">
+          <div className="bg-oqoody-dark border border-oqoody-border rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl p-6 sm:p-8">
             <div className="flex items-start justify-between pb-4 border-b border-oqoody-border mb-6">
               <div>
                 <h3 className="text-lg font-bold text-oqoody-textLight flex items-center gap-2">
                   <FileText className="w-5 h-5 text-oqoody-gold" />
-                  <span>{editingTemplate ? 'تعديل نموذج العقد الذكي' : 'محرر نماذج العقود الذكية المتغيرة'}</span>
+                  <span>{editingTemplate ? 'تعديل نموذج العقد والمتغيرات' : 'منشئ نماذج العقود والمتغيرات الديناميكية'}</span>
                 </h3>
                 <p className="text-xs text-oqoody-textMuted mt-1">
-                  صياغة البنود القانونية وتضمين الحقول المتغيرة تلقائياً بدقة
+                  إعداد الحقول المتغيرة والخيارات والتسعير المزدوج (فوري ومراجعة محامٍ)
                 </p>
               </div>
               <button onClick={() => setIsModalOpen(false)} className="text-oqoody-textMuted hover:text-white p-1">
@@ -358,7 +411,8 @@ export const TemplatesPage: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSaveTemplate} className="space-y-4">
+            <form onSubmit={handleSaveTemplate} className="space-y-5">
+              {/* Basic Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-oqoody-textMuted mb-1.5">
@@ -391,34 +445,35 @@ export const TemplatesPage: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-oqoody-textMuted mb-1.5">
-                  الوصف التعريفي للنموذج
-                </label>
-                <input
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="وصف مختصر للغرض القانوني من هذا العقد..."
-                  className="w-full bg-oqoody-card border border-oqoody-border rounded-xl px-4 py-2 text-xs text-oqoody-textLight focus:outline-none focus:border-oqoody-gold"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Dual Pricing Controls */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-oqoody-card/60 p-4 rounded-2xl border border-oqoody-border">
                 <div>
                   <label className="block text-xs font-semibold text-oqoody-textMuted mb-1.5">
-                    سعر شراء النموذج (ج.م)
+                    سعر التوليد الفوري المباشر (ج.م)
                   </label>
                   <input
                     type="number"
                     min={0}
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-full bg-oqoody-card border border-oqoody-border rounded-xl px-4 py-2 text-xs text-oqoody-textLight focus:outline-none focus:border-oqoody-gold font-bold"
+                    value={autoGeneratePrice}
+                    onChange={(e) => setAutoGeneratePrice(Number(e.target.value))}
+                    className="w-full bg-oqoody-dark border border-oqoody-border rounded-xl px-4 py-2 text-xs text-emerald-400 font-bold"
                   />
                 </div>
 
-                <div className="flex items-center gap-3 pt-6">
+                <div>
+                  <label className="block text-xs font-semibold text-oqoody-textMuted mb-1.5">
+                    سعر الصياغة ومراجعة المحامي (ج.م)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={lawyerReviewPrice}
+                    onChange={(e) => setLawyerReviewPrice(Number(e.target.value))}
+                    className="w-full bg-oqoody-dark border border-oqoody-border rounded-xl px-4 py-2 text-xs text-oqoody-gold font-bold"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
                   <input
                     type="checkbox"
                     id="revCheck"
@@ -427,38 +482,114 @@ export const TemplatesPage: React.FC = () => {
                     className="w-4 h-4 accent-oqoody-gold cursor-pointer"
                   />
                   <label htmlFor="revCheck" className="text-xs font-bold text-oqoody-textLight cursor-pointer">
-                    يتطلب مراجعة واعتماد محامٍ بشري قبل الختم والتوقيع
+                    فحص محامٍ إلزامي
                   </label>
                 </div>
               </div>
 
-              {/* Dynamic Placeholders Toolbar */}
-              <div className="bg-oqoody-card/80 p-3.5 rounded-2xl border border-oqoody-border">
-                <div className="flex items-center justify-between mb-2">
+              {/* Dynamic Variables Section */}
+              <div className="bg-oqoody-card/80 p-4 rounded-2xl border border-oqoody-border space-y-3">
+                <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-oqoody-gold flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>انقر لإدراج الحقول المتغيرة تلقائياً في موضع المؤشر:</span>
+                    <Variable className="w-4 h-4" />
+                    <span>المتغيرات الديناميكية المعرفة في النموذج ({variables.length})</span>
                   </span>
-                  <span className="text-[10px] text-oqoody-textMuted">تُستبدل تلقائياً ببيانات العميل</span>
+                  <span className="text-[11px] text-oqoody-textMuted">
+                    انقر على أي متغير لإدراجه في محرر العقد
+                  </span>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {samplePlaceholders.map((ph) => (
+
+                {/* Active Variables List */}
+                <div className="flex flex-wrap gap-2">
+                  {variables.map((v) => (
+                    <div
+                      key={v.name}
+                      className="flex items-center gap-1.5 bg-oqoody-dark px-2.5 py-1 rounded-lg border border-oqoody-border text-xs"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => insertPlaceholder(v.name)}
+                        className="font-mono text-oqoody-gold hover:underline"
+                        title="انقر للإدراج في النص"
+                      >
+                        &#123;&#123;{v.name}&#125;&#125;
+                      </button>
+                      <span className="text-[10px] text-oqoody-textMuted">({v.label} - {v.type})</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVariable(v.name)}
+                        className="text-oqoody-textMuted hover:text-oqoody-danger mr-1"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add New Variable Sub-form */}
+                <div className="pt-3 border-t border-oqoody-border/60">
+                  <span className="text-[11px] font-bold text-oqoody-textLight block mb-2">
+                    + تعريف متغير جديد:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                    <input
+                      type="text"
+                      placeholder="اسم الكود (مثال: عنوان_العقار)"
+                      value={newVarName}
+                      onChange={(e) => setNewVarName(e.target.value)}
+                      className="bg-oqoody-dark border border-oqoody-border rounded-lg px-2.5 py-1.5 text-xs text-oqoody-textLight"
+                    />
+                    <input
+                      type="text"
+                      placeholder="العنوان بالعربية للمستخدم"
+                      value={newVarLabel}
+                      onChange={(e) => setNewVarLabel(e.target.value)}
+                      className="bg-oqoody-dark border border-oqoody-border rounded-lg px-2.5 py-1.5 text-xs text-oqoody-textLight"
+                    />
+                    <select
+                      value={newVarType}
+                      onChange={(e: any) => setNewVarType(e.target.value)}
+                      className="bg-oqoody-dark border border-oqoody-border rounded-lg px-2 py-1.5 text-xs text-oqoody-textLight"
+                    >
+                      <option value="text">نص (Text)</option>
+                      <option value="number">رقم (Number)</option>
+                      <option value="date">تاريخ (Date)</option>
+                      <option value="select">خيارات منسدلة (Select)</option>
+                    </select>
+
+                    {newVarType === 'select' ? (
+                      <input
+                        type="text"
+                        placeholder="الخيارات مفصولة بفواصل (أ، ب)"
+                        value={newVarOptions}
+                        onChange={(e) => setNewVarOptions(e.target.value)}
+                        className="bg-oqoody-dark border border-oqoody-border rounded-lg px-2.5 py-1.5 text-xs text-oqoody-textLight"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        placeholder="القيمة الافتراضية (اختياري)"
+                        value={newVarDefault}
+                        onChange={(e) => setNewVarDefault(e.target.value)}
+                        className="bg-oqoody-dark border border-oqoody-border rounded-lg px-2.5 py-1.5 text-xs text-oqoody-textLight"
+                      />
+                    )}
+
                     <button
                       type="button"
-                      key={ph}
-                      onClick={() => insertPlaceholder(ph)}
-                      className="px-2 py-1 rounded bg-oqoody-dark hover:bg-oqoody-border text-[11px] text-oqoody-textLight border border-oqoody-border hover:border-oqoody-gold/50 transition-colors"
+                      onClick={handleAddVariable}
+                      className="px-3 py-1.5 rounded-lg bg-oqoody-border hover:bg-oqoody-gold hover:text-oqoody-bg text-oqoody-gold text-xs font-bold transition-all"
                     >
-                      + &#123;&#123;{ph}&#125;&#125;
+                      إضافة المتغير
                     </button>
-                  ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Content Editor */}
+              {/* Clause Editor */}
               <div>
                 <label className="block text-xs font-semibold text-oqoody-textMuted mb-1.5">
-                  النص القانوني والبنود التعاقدية *
+                  النص والبنود القانونية للعقد (مع الحقول المتغيرة) *
                 </label>
                 <textarea
                   ref={contentTextareaRef}
@@ -471,7 +602,7 @@ export const TemplatesPage: React.FC = () => {
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-oqoody-border">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-oqoody-border">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -483,7 +614,7 @@ export const TemplatesPage: React.FC = () => {
                   type="submit"
                   className="px-6 py-2.5 rounded-xl text-xs font-bold bg-oqoody-gold hover:bg-oqoody-goldHover text-oqoody-bg shadow-gold-glow transition-all"
                 >
-                  حفظ ونشر النموذج
+                  حفظ ونشر النموذج الذكي
                 </button>
               </div>
             </form>
@@ -519,4 +650,3 @@ export const TemplatesPage: React.FC = () => {
     </div>
   );
 };
-

@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
+
 const lawyerSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   barNumber: { type: String, required: true, unique: true },
   degree: { type: String, enum: ['ابتدائي', 'استئناف', 'نقض'], required: true },
   specializations: [{ type: String }],
+  bio: { type: String, default: 'محامٍ ومستشار قانوني معتمد لدى نقابة المحامين المصرية.' },
   idCardImage: { type: String },
   barCardImage: { type: String },
   verificationStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
@@ -11,6 +13,8 @@ const lawyerSchema = new mongoose.Schema({
   commissionRate: { type: Number, default: 15 },
   consultationRate: { type: Number, default: 250 },
   rating: { type: Number, default: 5.0 },
-  totalConsultations: { type: Number, default: 0 }
+  totalConsultations: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now }
 });
+
 module.exports = mongoose.model('Lawyer', lawyerSchema);
