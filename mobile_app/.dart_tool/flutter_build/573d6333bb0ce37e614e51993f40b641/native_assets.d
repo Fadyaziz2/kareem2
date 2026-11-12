@@ -1,0 +1,1 @@
+ /Users/fadygamil/Downloads/oqoody_full_project_with_assets/mobile_app/.dart_tool/flutter_build/573d6333bb0ce37e614e51993f40b641/native_assets.yaml: 

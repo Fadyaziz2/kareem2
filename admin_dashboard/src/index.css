@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #081810;
+    color: #F4F6F5;
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+/* Custom modern scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #081810;
+}
+::-webkit-scrollbar-thumb {
+  background: #1B4D3E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
+
+/* Luxury Glassmorphism & Cards */
+.oqoody-card {
+  background: rgba(19, 56, 39, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(27, 77, 62, 0.6);
+  border-radius: 1rem;
+}
+
+.oqoody-card:hover {
+  border-color: rgba(212, 175, 55, 0.35);
+  box-shadow: 0 4px 20px -2px rgba(13, 40, 24, 0.7);
+}
+
+.oqoody-glow-gold {
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+}
+
+.oqoody-gradient-gold {
+  background: linear-gradient(135deg, #DFBE55 0%, #D4AF37 50%, #A6851E 100%);
+}
+
