@@ -3,7 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "737d2040db377317c4515976a41be308",
+const RESOURCES = {"flutter_bootstrap.js": "249a4513fad89d2be744f8df01e92b1c",
 "version.json": "8bfa23608d728397b227d485de83ce71",
 "index.html": "d0f3b9e908edf81a039b6e1e53b03a44",
 "/": "d0f3b9e908edf81a039b6e1e53b03a44",
@@ -16,6 +16,7 @@ const RESOURCES = {"flutter_bootstrap.js": "737d2040db377317c4515976a41be308",
 "icons/Icon-maskable-512.png": "03edc59f5f86a7eb3cff92d74f19eb0f",
 "icons/Icon-512.png": "03edc59f5f86a7eb3cff92d74f19eb0f",
 "manifest.json": "b6d5738d0ef0bce194490852ad07e77b",
+"Archive.zip": "579ce4007a50af1b812098ee5c3bd82d",
 "assets/AssetManifest.json": "523201a6fdfe09b8e2b277963ad6662b",
 "assets/NOTICES": "b89dc0026cd148a2a186e02cb83448f7",
 "assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
