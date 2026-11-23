@@ -428,8 +428,68 @@ class ApiService {
   }
 
   // ----------------------------------------------------
-  // PAYMENTS & WALLET
+  // PAYMENTS & PAYMOB INTEGRATION (باي موب)
   // ----------------------------------------------------
+  Future<Map<String, dynamic>> initiatePaymobPayment({
+    required double amount,
+    required String title,
+    String type = 'contract',
+    String paymentMethod = 'card',
+    String? contractId,
+  }) async {
+    final res = await http.post(
+      Uri.parse(ApiConstants.paymobInitiate),
+      headers: _headers,
+      body: jsonEncode({
+        'amount': amount,
+        'title': title,
+        'type': type,
+        'paymentMethod': paymentMethod,
+        'contractId': contractId,
+      }),
+    );
+
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
+    if (res.statusCode == 200 && data['success'] == true) {
+      return data;
+    } else {
+      throw Exception(data['error'] ?? 'فشل تجهيز عملية الدفع عبر باي موب');
+    }
+  }
+
+  Future<Map<String, dynamic>> processPaymobPayment({
+    required String paymentToken,
+    required String orderId,
+    required String paymentMethod, // 'card' | 'wallet'
+    required double amount,
+    Map<String, String>? cardData,
+    String? walletNumber,
+    Map<String, dynamic>? contractData,
+    String? description,
+  }) async {
+    final res = await http.post(
+      Uri.parse(ApiConstants.paymobProcess),
+      headers: _headers,
+      body: jsonEncode({
+        'paymentToken': paymentToken,
+        'orderId': orderId,
+        'paymentMethod': paymentMethod,
+        'amount': amount,
+        'cardData': cardData,
+        'walletNumber': walletNumber,
+        'contractData': contractData,
+        'description': description,
+      }),
+    );
+
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
+    if (res.statusCode == 200 && data['success'] == true) {
+      return data;
+    } else {
+      throw Exception(data['error'] ?? 'تم رفض عملية الدفع من بوابة باي موب');
+    }
+  }
+
   Future<bool> mockCheckout({
     required String type, // 'contract' | 'consultation' | 'escrow' | 'topup'
     required double amount,

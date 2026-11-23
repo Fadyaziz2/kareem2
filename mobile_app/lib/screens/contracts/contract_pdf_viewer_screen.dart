@@ -3,6 +3,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
+import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../models/contract_model.dart';
 import '../escrow/create_escrow_screen.dart';
@@ -345,26 +346,28 @@ class ContractPdfViewerScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CreateEscrowScreen(preselectedContract: contract),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.security, color: OqoodyTheme.accentGold),
-                    label: const Text('ربط بوساطة Escrow', style: TextStyle(color: Colors.white)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: OqoodyTheme.accentGold),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                if (AppConstants.enableEscrow) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CreateEscrowScreen(preselectedContract: contract),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.security, color: OqoodyTheme.accentGold),
+                      label: const Text('ربط بوساطة Escrow', style: TextStyle(color: Colors.white)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: OqoodyTheme.accentGold),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
             const SizedBox(height: 30),

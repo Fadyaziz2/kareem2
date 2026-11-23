@@ -62,6 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Controls */}
       <div className="flex items-center gap-4">
+
         {/* Live Escrow Vault Indicator */}
         <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-oqoody-card border border-oqoody-border text-xs text-oqoody-textMuted">
           <span className="w-2 h-2 rounded-full bg-oqoody-success animate-ping" />

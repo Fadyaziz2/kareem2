@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
@@ -193,8 +194,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildProfileTile(Icons.phone, 'رقم الهاتف', user?.phone ?? '-'),
                   const Divider(color: OqoodyTheme.primaryEmerald),
                   _buildProfileTile(Icons.location_city, 'المدينة', user?.city ?? '-'),
-                  const Divider(color: OqoodyTheme.primaryEmerald),
-                  _buildProfileTile(Icons.account_balance_wallet, 'رصيد المحفظة', '${(user?.walletBalance ?? 0.0).toStringAsFixed(0)} ج.م'),
+                  if (AppConstants.enableWallet) ...[
+                    const Divider(color: OqoodyTheme.primaryEmerald),
+                    _buildProfileTile(Icons.account_balance_wallet, 'رصيد المحفظة', '${(user?.walletBalance ?? 0.0).toStringAsFixed(0)} ج.م'),
+                  ],
                 ],
               ),
             ),
@@ -230,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   applicationName: 'عقودي - Oqoody',
                   applicationVersion: '1.0.0 (Production)',
                   children: const [
-                    Text('منصة عقودي للحلول القانونية وحماية المعاملات المالية (Escrow).\nجميع الحقوق محفوظة © 2026.'),
+                    Text('منصة عقودي للحلول القانونية الذكية وتوثيق العقود والاستشارات المعتمدة.\nجميع الحقوق محفوظة © 2026.'),
                   ],
                 );
               },

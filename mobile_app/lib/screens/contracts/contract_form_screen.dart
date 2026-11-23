@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../../models/template_model.dart';
-import '../../services/api_service.dart';
-import 'contract_pdf_viewer_screen.dart';
+import '../payment/paymob_checkout_screen.dart';
 
 class ContractFormScreen extends StatefulWidget {
   final TemplateModel template;
@@ -19,7 +18,6 @@ class _ContractFormScreenState extends State<ContractFormScreen> {
   final Map<String, String> _selectValues = {};
 
   String _contractType = 'instant'; // 'instant' or 'lawyer_review'
-  bool _isSubmitting = false;
   String? _errorMessage;
 
   @override
@@ -50,61 +48,30 @@ class _ContractFormScreenState extends State<ContractFormScreen> {
         : widget.template.lawyerReviewPrice;
   }
 
-  Future<void> _submitContract() async {
+  void _submitContract() {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isSubmitting = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final filledVariables = <String, dynamic>{};
-      for (var variable in widget.template.variables) {
-        if (variable.type == 'select') {
-          filledVariables[variable.name] = _selectValues[variable.name] ?? '';
-        } else {
-          filledVariables[variable.name] = _controllers[variable.name]?.text.trim() ?? '';
-        }
+    final filledVariables = <String, dynamic>{};
+    for (var variable in widget.template.variables) {
+      if (variable.type == 'select') {
+        filledVariables[variable.name] = _selectValues[variable.name] ?? '';
+      } else {
+        filledVariables[variable.name] = _controllers[variable.name]?.text.trim() ?? '';
       }
-
-      // Step 1: Simulated Secure Mock Payment
-      await ApiService().mockCheckout(
-        type: 'contract',
-        amount: _currentPrice,
-        referenceId: widget.template.id,
-        description: 'رسوم توثيق: ${widget.template.title} ($_contractType)',
-      );
-
-      // Step 2: Generate Contract via Backend
-      final generatedContract = await ApiService().generateContract(
-        templateId: widget.template.id,
-        contractType: _contractType,
-        filledVariables: filledVariables,
-      );
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم توثيق وتوليد العقد بنجاح!'),
-          backgroundColor: OqoodyTheme.successGreen,
-        ),
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ContractPdfViewerScreen(contract: generatedContract),
-        ),
-      );
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceAll('Exception: ', '');
-      });
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
     }
+
+    // Direct redirection to Paymob Checkout
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymobCheckoutScreen(
+          template: widget.template,
+          amount: _currentPrice,
+          contractType: _contractType,
+          filledVariables: filledVariables,
+        ),
+      ),
+    );
   }
 
   @override
@@ -264,13 +231,14 @@ class _ContractFormScreenState extends State<ContractFormScreen> {
                       ],
                     ),
                     ElevatedButton.icon(
-                      onPressed: _isSubmitting ? null : _submitContract,
-                      icon: _isSubmitting
-                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: OqoodyTheme.primaryDark))
-                          : const Icon(Icons.check_circle_outline),
-                      label: Text(_isSubmitting ? 'جاري التوثيق...' : 'دفع وإصدار العقد'),
+                      onPressed: _submitContract,
+                      icon: const Icon(Icons.payment, size: 18),
+                      label: const Text('المتابعة للدفع (Paymob)'),
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: OqoodyTheme.accentGold,
+                        foregroundColor: OqoodyTheme.primaryDark,
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ],

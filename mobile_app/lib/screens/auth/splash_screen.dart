@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/common/oqoody_logo.dart';
 import '../home/main_wrapper_screen.dart';
 import 'login_screen.dart';
 
@@ -79,27 +79,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             children: [
               ScaleTransition(
                 scale: _scaleAnimation,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: OqoodyTheme.cardBg,
-                    borderRadius: BorderRadius.circular(32),
-                    border: Border.all(color: OqoodyTheme.accentGold.withOpacity(0.5), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: OqoodyTheme.accentGold.withOpacity(0.2),
-                        blurRadius: 30,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: SvgPicture.asset(
-                    'assets/icons/oqoody_logo.svg',
-                    fit: BoxFit.contain,
-                  ),
-                ),
+                child: const OqoodyLogo(size: 120, hasGlow: true, borderRadius: 32),
               ),
               const SizedBox(height: 28),
               const Text(
@@ -113,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               ),
               const SizedBox(height: 10),
               const Text(
-                'المنصة القانونية الذكية للوساطة والتوثيق',
+                'المنصة القانونية الذكية للعقود والاستشارات',
                 style: TextStyle(
                   fontSize: 14,
                   color: OqoodyTheme.textMuted,

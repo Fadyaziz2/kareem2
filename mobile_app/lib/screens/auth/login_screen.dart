@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/common/oqoody_logo.dart';
 import '../home/main_wrapper_screen.dart';
 import 'register_screen.dart';
 
@@ -14,8 +14,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _phoneController = TextEditingController(text: '01000000001');
-  final _passwordController = TextEditingController(text: 'Admin@123456');
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -55,42 +55,27 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _fillDemo(String emailOrPhone, String pass) {
-    setState(() {
-      _phoneController.text = emailOrPhone;
-      _passwordController.text = pass;
-      _errorMessage = null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 24),
-                Container(
-                  width: 90,
-                  height: 90,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: OqoodyTheme.cardBg,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: OqoodyTheme.accentGold.withOpacity(0.4)),
-                  ),
-                  child: SvgPicture.asset('assets/icons/oqoody_logo.svg', fit: BoxFit.contain),
-                ),
+                const OqoodyLogo(size: 90, hasGlow: true),
                 const SizedBox(height: 14),
                 const Text(
                   'عقودي - Oqoody',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: OqoodyTheme.accentGold),
                 ),
-                const Text('بوابتك القانونية الآمنة لتوثيق العقود والوساطة', style: TextStyle(color: OqoodyTheme.textMuted)),
+                const Text('بوابتك القانونية الآمنة لتوثيق العقود والاستشارات', style: TextStyle(color: OqoodyTheme.textMuted)),
                 const SizedBox(height: 32),
 
                 if (_errorMessage != null)
@@ -156,40 +141,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: const Text('حساب جديد؟ إنشاء حساب عميل أو محامٍ', style: TextStyle(color: OqoodyTheme.accentGold, fontWeight: FontWeight.bold)),
                 ),
-
-                const SizedBox(height: 32),
-                const Text('حسابات تجريبية سريعة بنقرة واحدة:', style: TextStyle(fontSize: 12, color: OqoodyTheme.textMuted)),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    ActionChip(
-                      label: const Text('👑 أدمن عام'),
-                      backgroundColor: OqoodyTheme.cardBg,
-                      side: const BorderSide(color: OqoodyTheme.accentGold),
-                      onPressed: () => _fillDemo('admin@oqoody.com', 'Admin@123456'),
-                    ),
-                    ActionChip(
-                      label: const Text('⚖️ محامٍ معتمد'),
-                      backgroundColor: OqoodyTheme.cardBg,
-                      side: const BorderSide(color: OqoodyTheme.primaryEmerald),
-                      onPressed: () => _fillDemo('01233334444', 'Oqoody@2026'),
-                    ),
-                    ActionChip(
-                      label: const Text('👤 عميل وساطة'),
-                      backgroundColor: OqoodyTheme.cardBg,
-                      side: const BorderSide(color: OqoodyTheme.cardBg),
-                      onPressed: () => _fillDemo('01011112222', 'Oqoody@2026'),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

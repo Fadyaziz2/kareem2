@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
@@ -124,7 +125,10 @@ class _LawyerDashboardTabState extends State<LawyerDashboardTab> {
                 children: [
                   _statCard('الاستشارات الواردة', '${_consultations.length}', Icons.question_answer_outlined, OqoodyTheme.accentGold),
                   _statCard('طلبات مراجعة العقود', '${_reviewContracts.length}', Icons.assignment_outlined, OqoodyTheme.successGreen),
-                  _statCard('رصيد أتعاب المحفظة', '${user?.walletBalance.toStringAsFixed(0) ?? 0} ج.م', Icons.account_balance_wallet_outlined, Colors.amber),
+                  if (AppConstants.enableWallet)
+                    _statCard('رصيد أتعاب المحفظة', '${user?.walletBalance.toStringAsFixed(0) ?? 0} ج.م', Icons.account_balance_wallet_outlined, Colors.amber)
+                  else
+                    _statCard('الاستشارات المكتملة', '${_consultations.where((c) => c.status == "completed").length}', Icons.check_circle_outline, Colors.amber),
                   _statCard('نسبة عمولة المنصة', '15%', Icons.pie_chart_outline, Colors.lightBlueAccent),
                 ],
               ),

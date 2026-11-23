@@ -62,7 +62,11 @@ router.post('/generate', verifyToken, async (req, res) => {
       renderedContent,
       status: contractType === 'lawyer_review' ? 'pending_review' : 'completed',
       price,
-      paymentStatus: 'paid'
+      paymentStatus: 'paid',
+      paymentGateway: 'paymob',
+      paymobOrderId: req.body.paymobOrderId || null,
+      paymobTransactionId: req.body.paymobTransactionId || null,
+      transactionId: req.body.transactionId || null
     });
 
     // Record Transaction

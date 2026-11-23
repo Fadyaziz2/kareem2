@@ -10,11 +10,17 @@ const generatedContractSchema = new mongoose.Schema({
   renderedContent: { type: String, required: true },
   status: { type: String, enum: ['draft', 'pending_review', 'approved', 'completed'], default: 'completed' },
   price: { type: Number, required: true },
-  paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'paid' },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'paid' },
+
+  // Paymob Payment Details (باي موب)
+  paymentGateway: { type: String, default: 'paymob' },
+  paymobOrderId: { type: String },
+  paymobTransactionId: { type: String },
+  transactionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' },
+
   lawyerNotes: { type: String },
   pdfUrl: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('GeneratedContract', generatedContractSchema);
-

@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.npm/
+**/.npm/
+
+# Dart / Flutter build files (Keep build/web and Archive.zip only)
+.dart_tool/
+**/.dart_tool/
+mobile_app/build/*
+!mobile_app/build/web/
+!mobile_app/build/web/**
+.packages
+**/.packages
+.pub-cache/
+**/.pub-cache/
+
+# OS files
+.DS_Store
+**/.DS_Store
+Thumbs.db
